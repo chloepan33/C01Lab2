@@ -172,7 +172,7 @@ app.get("/getNote/:noteId", express.json(), async (req, res) => {
     }
   });
 
-  // Get all notes belonging to the user
+// Get all notes belonging to the user
 app.get("/getAllNotes", async (req, res) => {
     try {
         // Verify the JWT from the request headers
@@ -190,7 +190,7 @@ app.get("/getAllNotes", async (req, res) => {
             if (notes) {
                 res.status(200).json({ response: notes });
             } else {
-                // It's okay to return an empty array if no notes are found
+                // Return an empty array if no notes are found
                 res.status(200).json({ response: [] });
             }
         });
@@ -206,7 +206,7 @@ app.delete("/deleteNote/:noteId", async (req, res) => {
 
         // Basic param checking
         if (!ObjectId.isValid(noteId)) {
-            return res.status(400).json({ error: "Invalid note ID." });
+            return res.status(400).json({ error: "Bad request in relation to the :noteId URL parameter" });
         }
 
         // Verify the JWT from the request headers
@@ -225,13 +225,13 @@ app.delete("/deleteNote/:noteId", async (req, res) => {
 
             // If note is not found or doesn't belong to the user
             if (!note) {
-                return res.status(404).json({ error: "Note not found or unauthorized access." });
+                return res.status(404).json({ error: "Note with ID noteId belonging to the user not found" });
             }
             
             // Delete the note
             await collection.deleteOne({ _id: new ObjectId(noteId) });
             
-            // Send confirmation response
+            
             res.status(200).json({ response: `Document with ID ${noteId} properly deleted.` });
         });
     } catch (error) {
@@ -246,7 +246,7 @@ app.patch("/editNote/:noteId", express.json(), async (req, res) => {
         const noteId = req.params.noteId;
         const { title, content } = req.body;
 
-        // Basic param and body checking
+        // Basic param checking
         if (!ObjectId.isValid(noteId)) {
             return res.status(400).json({ error: "Invalid note ID." });
         }
@@ -269,10 +269,10 @@ app.patch("/editNote/:noteId", express.json(), async (req, res) => {
 
             // If note is not found or doesn't belong to the user
             if (!note) {
-                return res.status(404).json({ error: "Note not found or unauthorized access." });
+                return res.status(404).json({ error: "Note with ID noteId belonging to the user not found." });
             }
 
-            // Prepare the update object
+            
             const updateData = {};
             if (title) updateData.title = title;
             if (content) updateData.content = content;
@@ -280,7 +280,7 @@ app.patch("/editNote/:noteId", express.json(), async (req, res) => {
             // Update the note
             await collection.updateOne({ _id: new ObjectId(noteId) }, { $set: updateData });
 
-            // Send confirmation response
+            
             res.status(200).json({ response: `Document with ID ${noteId} properly updated.` });
         });
     } catch (error) {
